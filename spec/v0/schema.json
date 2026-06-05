@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claimspec.org/spec/v0/schema.json",
+  "title": "ClaimSpec v0",
+  "description": "Canonical schema for claims, lineage events, actors, and disclosure. See spec.md for normative rationale.",
+  "version": "0.1.0-alpha",
+  "type": "object",
+  "properties": {
+    "claimspec": {
+      "type": "string",
+      "description": "Spec version this document conforms to.",
+      "const": "0"
+    },
+    "conformance": {
+      "type": "string",
+      "enum": ["core", "standard", "extended"],
+      "description": "The conformance tier this document declares (see spec.md §8)."
+    },
+    "claims": { "type": "array", "items": { "$ref": "#/$defs/Claim" } },
+    "events": { "type": "array", "items": { "$ref": "#/$defs/Event" } },
+    "disclosures": { "type": "array", "items": { "$ref": "#/$defs/Disclosure" } }
+  },
+  "required": ["claimspec"],
+  "$defs": {
+    "Register": {
+      "type": "string",
+      "enum": ["record", "inference"],
+      "description": "What grounds the confidence. record = constitutive (may be 1.0, WORM); inference = empirical ((0,1) forever, revisable)."
+    },
+    "ClaimType": {
+      "type": "string",
+      "description": "Open/extensible. Core ontology listed; domain vocabularies may extend.",
+      "examples": [
+        "observation", "evidence",
+        "hypothesis", "pattern", "insight", "theory", "principle", "law",
+        "question", "gap", "contradiction", "assumption", "risk"
+      ]
+    },
+    "Agency": {
+      "type": "string",
+      "enum": ["human", "ai", "hybrid"],
+      "description": "Responsibility axis (EU AI Act Art. 50). Projected from events; per-artifact AI-involvement is the sticky-upward disjunction over the closure."
+    },
+    "Claim": {
+      "type": "object",
+      "description": "A unit of knowledge with a confidence and a register. See spec.md §2-§5.",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "$ref": "#/$defs/ClaimType" },
+        "register": { "$ref": "#/$defs/Register" },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "How sure (0..1). An inference MUST be < 1.0 (see allOf)."
+        },
+        "content": { "type": "object", "description": "Domain payload; opaque to the spec." },
+        "agency": { "$ref": "#/$defs/Agency" },
+        "superseded_by": { "type": ["string", "null"], "description": "Claim id that supersedes this one (records supersede, never edit)." },
+        "derived_from": { "type": "array", "items": { "type": "string" }, "description": "Predecessor VERSIONS (version DAG)." },
+        "drew_on": { "type": "array", "items": { "type": "string" }, "description": "Sources CITED/composed." },
+        "created_by": { "type": "string", "description": "Genesis Event id." }
+      },
+      "required": ["id", "type", "register", "confidence"],
+      "allOf": [
+        {
+          "$comment": "NORMATIVE INVARIANT (spec.md §3): an inference can never be certain.",
+          "if": { "properties": { "register": { "const": "inference" } }, "required": ["register"] },
+          "then": { "properties": { "confidence": { "exclusiveMaximum": 1 } } }
+        }
+      ]
+    },
+    "EventFamily": {
+      "type": "string",
+      "enum": ["genesis", "production", "epistemic", "relational", "lifecycle"],
+      "description": "Behavioural family of the act. spec.md §6.2."
+    },
+    "Event": {
+      "type": "object",
+      "description": "One act that happened — the append-only ledger that IS the truth. spec.md §6.",
+      "properties": {
+        "id": { "type": "string" },
+        "family": { "$ref": "#/$defs/EventFamily" },
+        "type": { "type": "string", "description": "Specific act type within the family (e.g. 'observed', 'inferred', 'superseded', 'egress_disclosed')." },
+        "subject": { "type": "string", "description": "Claim id this act concerns." },
+        "actor": { "$ref": "#/$defs/Actor" },
+        "inputs": {
+          "type": "object",
+          "properties": {
+            "derived_from": { "type": "array", "items": { "type": "string" } },
+            "drew_on": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        },
+        "at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "family", "type", "subject", "actor", "at"]
+    },
+    "Actor": {
+      "type": "object",
+      "description": "Who acted — three orthogonal axes. spec.md §6.4.",
+      "properties": {
+        "actor_type": { "type": "string", "enum": ["user", "ai_agent", "system"], "description": "Mechanism — HOW it ran." },
+        "actor_agency": { "$ref": "#/$defs/Agency" },
+        "actor_id": { "type": "string", "description": "Identity — WHICH specific actor (audit; Art. 12)." },
+        "model_used": { "type": ["string", "null"], "description": "Model id, when actor_type = ai_agent." }
+      },
+      "required": ["actor_type", "actor_agency", "actor_id"]
+    },
+    "Disclosure": {
+      "type": "object",
+      "description": "Egress read-model: the closure-walk projection for a published artifact. spec.md §7.",
+      "properties": {
+        "subject": { "type": "string", "description": "Published Claim/artifact id." },
+        "ai_involved": { "type": "boolean", "description": "Disjunction of agency over the closure; sticky-upward." },
+        "external_marks": { "type": "array", "items": { "type": "string" }, "description": "Union of external marks across the closure." },
+        "sources": { "type": "array", "items": { "type": "string" }, "description": "Union of cited sources / review refs (Art. 12 / Art. 50(4))." }
+      },
+      "required": ["subject", "ai_involved"]
+    }
+  }
+}

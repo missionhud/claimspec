@@ -1,0 +1,77 @@
+{
+  "$comment": "Extended-tier example: a production signal becomes an inference about which committed promise (Goal) it breaks. Demonstrates record vs inference, the never-1.0 invariant, the 3-axis actor, lineage edges, and disclosure. Illustrative.",
+  "claimspec": "0",
+  "conformance": "extended",
+  "claims": [
+    {
+      "id": "goal-checkout-p95",
+      "type": "observation",
+      "register": "record",
+      "confidence": 1.0,
+      "content": {
+        "kind": "goal",
+        "statement": "checkout p95 latency < 200ms",
+        "category": "constraint",
+        "committed_in": "mission-frictionless-purchase"
+      },
+      "created_by": "evt-goal-decided"
+    },
+    {
+      "id": "obs-checkout-p95-prod",
+      "type": "observation",
+      "register": "record",
+      "confidence": 1.0,
+      "content": { "kind": "measurement", "metric": "checkout.p95_ms", "value": 412, "environment": "production", "window": "2026-06-05T18:00Z/PT15M" },
+      "created_by": "evt-prod-measured"
+    },
+    {
+      "id": "inf-cache-causes-regression",
+      "type": "hypothesis",
+      "register": "inference",
+      "confidence": 0.82,
+      "content": {
+        "statement": "The cache change in card feat-1780-cache (built to satisfy Goal 'reduce DB load') is causing the checkout p95 regression that now breaks Goal 'checkout p95 < 200ms' — a cross-Goal trade-off invisible at build time.",
+        "implicates_goal": "goal-checkout-p95",
+        "originating_card": "feat-1780-cache"
+      },
+      "drew_on": ["obs-checkout-p95-prod", "goal-checkout-p95"],
+      "agency": "ai",
+      "created_by": "evt-inferred-correlation"
+    }
+  ],
+  "events": [
+    {
+      "id": "evt-goal-decided",
+      "family": "genesis",
+      "type": "decided",
+      "subject": "goal-checkout-p95",
+      "actor": { "actor_type": "user", "actor_agency": "human", "actor_id": "brad" },
+      "at": "2026-05-01T09:00:00Z"
+    },
+    {
+      "id": "evt-prod-measured",
+      "family": "production",
+      "type": "observed",
+      "subject": "obs-checkout-p95-prod",
+      "actor": { "actor_type": "system", "actor_agency": "human", "actor_id": "otel-collector" },
+      "at": "2026-06-05T18:15:00Z"
+    },
+    {
+      "id": "evt-inferred-correlation",
+      "family": "epistemic",
+      "type": "inferred",
+      "subject": "inf-cache-causes-regression",
+      "actor": { "actor_type": "ai_agent", "actor_agency": "ai", "actor_id": "orbit", "model_used": "claude-opus-4-8" },
+      "inputs": { "drew_on": ["obs-checkout-p95-prod", "goal-checkout-p95"] },
+      "at": "2026-06-05T18:16:30Z"
+    }
+  ],
+  "disclosures": [
+    {
+      "subject": "inf-cache-causes-regression",
+      "ai_involved": true,
+      "external_marks": [],
+      "sources": ["obs-checkout-p95-prod", "goal-checkout-p95"]
+    }
+  ]
+}

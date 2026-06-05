@@ -1,0 +1,44 @@
+name: RFC — Specification change
+description: Propose a substantive change to ClaimSpec (new field, invariant, ontology, alignment, etc.)
+title: "RFC: <short title>"
+labels: ["rfc"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing a change. Please keep it thin and load-bearing
+        (see GOVERNANCE.md). RFCs that push reasoning/storage/ML/UI into the spec
+        are out of scope.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is unclear, missing, or wrong? Who hits it?
+    validations: { required: true }
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: The change. Reference spec.md sections / schema.json paths.
+    validations: { required: true }
+  - type: textarea
+    id: invariants
+    attributes:
+      label: Invariants & compatibility
+      description: |
+        Confirm the change preserves the safety invariants (spec.md §3–§6.1) and the
+        Forever Backwards Read guarantee — or explain why a major version is needed.
+    validations: { required: true }
+  - type: textarea
+    id: alignment
+    attributes:
+      label: Standards alignment
+      description: Does this affect alignment with W3C PROV / in-toto-SLSA / OpenLineage? How?
+    validations: { required: false }
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This is a change to the data model / invariants / ontology / provenance — not to an engine.
+          required: true
