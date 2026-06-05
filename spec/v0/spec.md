@@ -117,7 +117,9 @@ Implementations **MUST** enforce: record-types carry `register: record`; inferen
 
 ### 6.2 Events — five families
 
-Every event belongs to one of five **behavioural families**: `genesis` · `production` · `epistemic` · `relational` · `lifecycle`. Two acts are first-class for the model: `superseded` (§4) and `egress_disclosed` (§7). An Event carries: `id`, `family`, `type`, `subject` (the Claim id acted on), `actor` (§6.4), `inputs` (§6.3), and `at` (timestamp).
+Every event belongs to one of five **behavioural families**: `genesis` · `production` · `epistemic` · `relational` · `lifecycle`. Two acts are first-class for the model: `superseded` (§4) and `egress_disclosed` (§7). An Event carries: `id`, `family`, `type`, `subject` (the Claim id acted on), `actor` (§6.4), `inputs` (§6.3), `at` (timestamp), and an optional `review_ref` (§6.5).
+
+> **Provisional (under review with the second implementer):** whether `family` is a *stored* field or a value *derived* from `type` is being confirmed against a flat-`event_type` implementer (see `conformance/discovery-mapping.md`). v0 currently treats it as stored; this may relax to "derived, non-authoritative" in a later alpha. Do not depend on it being authoritative.
 
 ### 6.3 Two input edges
 
@@ -137,6 +139,10 @@ A single "actor type" was secretly doing three independent jobs; they vary indep
 | **Identity** | `actor_id` (+ `model_used`) | *which specific* actor | ownership / audit (**Art. 12**) |
 
 ---
+
+### 6.5 `review_ref` — the human-control record
+
+An act MAY carry a `review_ref`: the id of the record evidencing **human review / control** of that act. This is the **EU AI Act Art. 50(4)** human-oversight exemption primitive. At egress, every `review_ref` in the closure **unions into `Disclosure.sources`** (§7). (Adopted from the reference implementation in v0.1.0-alpha.2.)
 
 ## 7. Disclosure (egress closure-walk)
 
@@ -180,6 +186,15 @@ ClaimSpec's provenance layer is a **profile** that aligns with — and should in
 This mapping is informative; a conformant implementation's auditability is established against its own risk assessment, not by ClaimSpec alone.
 
 ---
+
+## 11. Extensions
+
+ClaimSpec core is deliberately thin. Implementations carry domain richness in two sanctioned ways, so the core never bloats (the standard's central discipline):
+
+1. **`content`** — the Claim's opaque, domain-defined payload (§2). Always available.
+2. **`x-` extension keys** — any ClaimSpec object (Claim, Event) MAY carry additional properties whose names begin with `x-`, namespaced by vendor (e.g. `x-discovery-confidence-signals`, `x-discovery-relationships`). Validators **MUST** ignore unknown `x-` keys; they are **non-authoritative for conformance**. Non-`x-` unknown properties are discouraged.
+
+This is how a richer engine declares what it adds without forcing it into the standard. For example, the Discovery reference implementation expresses `confidence_signals` (the weighted dimensions that compose a `confidence`), a general typed `relationships` graph, a continuous `maturity` hint alongside the `hypothesis→…→law` type ladder, and domain object fields — all as `content` / `x-` extensions, while remaining Extended-tier conformant. See `conformance/discovery-mapping.md`.
 
 ## Appendix A — normative keywords
 

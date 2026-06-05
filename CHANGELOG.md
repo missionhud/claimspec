@@ -3,6 +3,25 @@
 All notable changes to ClaimSpec are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/); the spec uses Semantic Versioning.
 
+## [0.1.0-alpha.2] — 2026-06-05
+
+First implementer reconciliation (Mission HUD Discovery — see
+`spec/v0/conformance/discovery-mapping.md`). The `register` invariant and the
+three-axis actor model matched byte-for-byte; no invariant moved.
+
+### Added
+- **`Event.review_ref`** (optional) — the human-control / review record id (EU AI Act
+  Art. 50(4)); unions into `Disclosure.sources` at egress. Adopted from the reference
+  implementation, which already carried it.
+- **§11 Extensions** — the `x-` extension convention (namespaced, validator-ignored,
+  non-authoritative), so implementations declare domain richness without bloating core.
+  `patternProperties: { "^x-": {} }` added to Claim and Event.
+
+### Pending (held)
+- **`family`** — whether it is a stored field or *derived* from `type` is held for the
+  **second implementer** (Builder's lean embed) to confirm against a flat-`event_type`
+  model before changing the schema. Flagged provisional in §6.2.
+
 ## [0.1.0-alpha] — 2026-06-05
 
 Initial public draft. **Not stable** — the schema may change between alphas.

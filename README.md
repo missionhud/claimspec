@@ -6,7 +6,7 @@ ClaimSpec is a vendor-neutral interchange format for **what is known, how sure, 
 
 It is a sibling to [AppSpec](https://github.com/missionhud/appspec): *AppSpec carries design intent over a provenance foundation; ClaimSpec carries knowledge claims over the same foundation* — adding the epistemic layer AppSpec doesn't need.
 
-> Status: **v0.1.0-alpha** — schema under active design. Not yet stable. Published as the shared reference for early implementers.
+> Status: **v0.1.0-alpha.2** — schema under active design. Not yet stable. Published as the shared reference for early implementers.
 
 ---
 

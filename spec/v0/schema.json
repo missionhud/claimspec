@@ -3,7 +3,7 @@
   "$id": "https://claimspec.org/spec/v0/schema.json",
   "title": "ClaimSpec v0",
   "description": "Canonical schema for claims, lineage events, actors, and disclosure. See spec.md for normative rationale.",
-  "version": "0.1.0-alpha",
+  "version": "0.1.0-alpha.2",
   "type": "object",
   "properties": {
     "claimspec": {
@@ -61,6 +61,7 @@
         "drew_on": { "type": "array", "items": { "type": "string" }, "description": "Sources CITED/composed." },
         "created_by": { "type": "string", "description": "Genesis Event id." }
       },
+      "patternProperties": { "^x-": { "$comment": "Extension namespace (spec.md §11). Implementations MAY add x-<vendor> keys; validators ignore them; non-authoritative for conformance." } },
       "required": ["id", "type", "register", "confidence"],
       "allOf": [
         {
@@ -92,8 +93,10 @@
           },
           "additionalProperties": false
         },
-        "at": { "type": "string", "format": "date-time" }
+        "at": { "type": "string", "format": "date-time" },
+        "review_ref": { "type": "string", "description": "Human-control / review record id (EU AI Act Art. 50(4)); unions into Disclosure.sources at egress. spec.md §6.4, §7." }
       },
+      "patternProperties": { "^x-": { "$comment": "Extension namespace (spec.md §11)." } },
       "required": ["id", "family", "type", "subject", "actor", "at"]
     },
     "Actor": {
